@@ -57,9 +57,9 @@ stages:
         scriptLocation: inlineScript
         inlineScript: |
           echo $(DOCKER_CONFIG)/trust/private/new-key-1.key | base64 --decode > $(DOCKER_CONFIG)/trust/private/delegate.key
-          chmod 400 $(DOCKER_CONFIG)/trust/private/new-key-1.key
+          chmod 400 $(DOCKER_CONFIG)/trust/private/delegate.key
           export DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE=$(DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE)
-          docker trust key load $(DOCKER_CONFIG)/trust/private/new-key-1.key --name delegationkey 
+          docker trust key load $(DOCKER_CONFIG)/trust/private/delegate.key --name delegationkey 
           export DOCKER_CONTENT_TRUST=1
           docker trust sign $(containerRegistry)/$(imageRepository):$(tag)
           docker trust inspect --pretty $(containerRegistry)/$(imageRepository):$(tag)

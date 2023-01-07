@@ -56,7 +56,7 @@ stages:
         scriptType: bash
         scriptLocation: inlineScript
         inlineScript: |
-          az acr login -n $(containerRegistry)
+         
           echo $(DOCKER_CONFIG)/trust/private/new-key-1.key | base64 --decode > $(DOCKER_CONFIG)/trust/private/delegate.key
           chmod 400 $(DOCKER_CONFIG)/trust/private/delegate.key
           export DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE=$(DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE)

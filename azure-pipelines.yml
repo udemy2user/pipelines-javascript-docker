@@ -34,7 +34,7 @@ stages:
     - task: DownloadSecureFile@1
       name: privateKey
       inputs:
-        secureFile: new-key.key
+        secureFile: new-key-1.key
     - script: |
         mkdir -p $(DOCKER_CONFIG)/trust/private
         cp $(privateKey.secureFilePath) $(DOCKER_CONFIG)/trust/private

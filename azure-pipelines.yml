@@ -52,7 +52,7 @@ stages:
     - task: AzureCLI@2
       displayName: Content Trust Sign and Push
       inputs:
-        azureSubscription: $(containerRegistryServiceConnection)
+        azureSubscription: 'RmServiceConnection'
         scriptType: bash
         scriptLocation: inlineScript
         inlineScript: |

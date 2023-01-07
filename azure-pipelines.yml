@@ -32,19 +32,12 @@ stages:
         containerRegistry: $(containerRegistryServiceConnection)
 
     - task: DownloadSecureFile@1
-      name: contentTrust
+      name: privateKey
       inputs:
         secureFile: new-key-1.key
     - script: |
         mkdir -p $(DOCKER_CONFIG)/trust/private
-        cp $(contentTrust.secureFilePath) $(DOCKER_CONFIG)/trust/private
-        echo "Copied $(contentTrust.secureFilePath) to $(DOCKER_CONFIG)/trust/private"
-        mv $(DOCKER_CONFIG)/trust/private/new-key-1.key $(DOCKER_CONFIG)/trust/private/$KEY_ID.key
-        chmod 600 $(DOCKER_CONFIG)/trust/private/$KEY_ID.key
-        docker trust key load $(DOCKER_CONFIG)/trust/private/$KEY_ID.key
-      env:
-        DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE: $(DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE)
-        KEY_ID: 987123    
+        cp $(privateKey.secureFilePath) $(DOCKER_CONFIG)/trust/private
 
     - task: Docker@2
       inputs:

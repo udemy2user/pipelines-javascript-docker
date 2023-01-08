@@ -44,29 +44,46 @@ stages:
         notary key export --key $(DOCKER_CONFIG)/trust/private/$KEY_ID.key -o $(DOCKER_CONFIG)/trust/private/key-name.pem
         chmod 600 $(DOCKER_CONFIG)/trust/private/$KEY_ID.key
         
-        docker trust key load $(DOCKER_CONFIG)/trust/private/$KEY_ID.key
+        # docker trust key load $(DOCKER_CONFIG)/trust/private/$KEY_ID.key
       env:
         DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE: $(DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE)
         KEY_ID: 987554
 
-    - task: Docker@2
+    - task: AzureCLI@2
+      displayName: Content Trust Sign and Push
       inputs:
-        command: build
-        dockerfile: $(dockerfilePath)
-        containerRegistry: $(containerRegistryServiceConnection)
-        repository: $(imageRepository)
-        tags: |
-          $(tag)
-        arguments: '--disable-content-trust=false'
-
-    - task: Docker@2
-      inputs: 
-        command: push
-        containerRegistry: $(containerRegistryServiceConnection)
-        repository: $(imageRepository)
-        tags: |
-          $(tag)
-        arguments: '--disable-content-trust=false'
+        azureSubscription: 'RmServiceConnection'
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+         
+          export DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE=$(DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE)
+          docker trust key load $(DOCKER_CONFIG)/trust/private/$KEY_ID.key
+          export DOCKER_CONTENT_TRUST=1
+          docker trust sign $(containerRegistry)/$(imageRepository):$(tag)
+          docker trust inspect --pretty $(containerRegistry)/$(imageRepository):$(tag) 
       env:
         DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE: $(DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE)
+        KEY_ID: 987554
+     
+    # - task: Docker@2
+    #   inputs:
+    #     command: build
+    #     dockerfile: $(dockerfilePath)
+    #     containerRegistry: $(containerRegistryServiceConnection)
+    #     repository: $(imageRepository)
+    #     tags: |
+    #       $(tag)
+    #     arguments: '--disable-content-trust=false'
+
+    # - task: Docker@2
+    #   inputs: 
+    #     command: push
+    #     containerRegistry: $(containerRegistryServiceConnection)
+    #     repository: $(imageRepository)
+    #     tags: |
+    #       $(tag)
+    #     arguments: '--disable-content-trust=false'
+    #   env:
+    #     DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE: $(DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE)
 

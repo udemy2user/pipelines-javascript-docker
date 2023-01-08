@@ -41,6 +41,7 @@ stages:
         cp $(contentTrust.secureFilePath) $(DOCKER_CONFIG)/trust/private
         echo "Copied $(contentTrust.secureFilePath) to $(DOCKER_CONFIG)/trust/private"
         mv $(DOCKER_CONFIG)/trust/private/37765616fbd11a3de2495b5a75d476fac8012bae5f0f10cb0218cc5e313b66ff.key $(DOCKER_CONFIG)/trust/private/$KEY_ID.key
+        notary key export --key $(DOCKER_CONFIG)/trust/private/$KEY_ID.key -o $(DOCKER_CONFIG)/trust/private/key-name.pem
         chmod 600 $(DOCKER_CONFIG)/trust/private/$KEY_ID.key
         
         docker trust key load $(DOCKER_CONFIG)/trust/private/$KEY_ID.key

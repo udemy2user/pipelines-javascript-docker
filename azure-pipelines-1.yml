@@ -1,0 +1,70 @@
+# Docker
+# Build and push an image to Azure Container Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- none
+
+resources:
+- repo: self
+
+variables:
+  # Container registry service connection established during pipeline creation
+  containerRegistryServiceConnection: 'conRegistryServiceConnection'
+  imageRepository: 'signedrepo'
+  containerRegistry: 'signedimagecontainer.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/app/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+  # Agent VM image name
+pool: MyAgentPool
+
+stages:
+- stage: Build
+  displayName: Build and push stage
+  jobs:
+  - job: Build
+    displayName: Build
+    steps:
+    - task: Docker@2
+      inputs:
+        command: login
+        containerRegistry: $(containerRegistryServiceConnection)
+
+    - task: DownloadSecureFile@1
+      name: contentTrust
+      inputs:
+        secureFile: 'docker-content-trust.key'
+
+    - script: |
+        mkdir -p $(DOCKER_CONFIG)/trust/private
+        cp $(contentTrust.secureFilePath) $(DOCKER_CONFIG)/trust/private
+        echo "Copied $(contentTrust.secureFilePath) to $(DOCKER_CONFIG)/trust/private"
+        mv $(DOCKER_CONFIG)/trust/private/docker-content-trust.key $(DOCKER_CONFIG)/trust/private/$KEY_ID.key
+        chmod 600 $(DOCKER_CONFIG)/trust/private/$KEY_ID.key
+        docker trust key load $(DOCKER_CONFIG)/trust/private/$KEY_ID.key
+      env:
+        DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE: $(DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE)
+        KEY_ID: 987554
+
+    - task: Docker@2
+      inputs:
+        command: build
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(containerRegistryServiceConnection)
+        repository: $(imageRepository)
+        tags: |
+          $(tag)
+        arguments: '--disable-content-trust=false'
+
+    - task: Docker@2
+      inputs: 
+        command: push
+        containerRegistry: $(containerRegistryServiceConnection)
+        repository: $(imageRepository)
+        tags: |
+          $(tag)
+        arguments: '--disable-content-trust=false'
+      env:
+        DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE: $(DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE)
+

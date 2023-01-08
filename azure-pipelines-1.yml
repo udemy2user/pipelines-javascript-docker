@@ -66,7 +66,7 @@ stages:
         scriptType: bash
         scriptLocation: inlineScript
         inlineScript: |
-          az acr login -n $(containerRegistry) -u d4c2ece1-3eac-48ad-bca2-03c0460233a7 -p D9s8Q~XDGbDoLvn.cAufD1mRI8UsHIGuV01ppaAN
+        
           export DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE=$(DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE)
           export DOCKER_CONTENT_TRUST_ROOT_PASSPHRASE=$(DOCKER_CONTENT_TRUST_ROOT_PASSPHRASE)
           docker trust key load $(DOCKER_CONFIG)/trust/private/$KEY_ID.key

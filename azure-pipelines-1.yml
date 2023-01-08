@@ -49,6 +49,16 @@ stages:
         DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE: $(DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE)
         KEY_ID: 987554
 
+    - task: Docker@2
+      inputs:
+        command: build
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(containerRegistryServiceConnection)
+        repository: $(imageRepository)
+        tags: |
+          $(tag)
+        arguments: '--disable-content-trust=false'
+
     - task: AzureCLI@2
       displayName: Content Trust Sign and Push
       inputs:

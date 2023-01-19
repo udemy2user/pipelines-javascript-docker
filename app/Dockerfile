@@ -7,7 +7,7 @@ WORKDIR /app
 
 COPY ["package.json", "package-lock.json*", "./"]
 
-RUN npm install --production --platform linux/amd64
+RUN npm install --production
 
 COPY . .
 
